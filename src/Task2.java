@@ -25,12 +25,13 @@ public class Task2 {
         List<String> arrayList1 = arrayList.subList(0, arrayList.size()/3);
         List<String> arrayList2 = arrayList.subList(arrayList.size()/3, (arrayList.size()/3)*2);
         List<String> arrayList3 = arrayList.subList((arrayList.size()/3)*2, arrayList.size());
-        Thread war1 = new Thread(new Theards.War1(arrayList1));
-        Thread war2 = new Thread(new Theards.War2(arrayList2));
-        Thread war3 = new Thread(new Theards.War3(arrayList3));
+        Thread war1 = new Thread(new Theards.War(arrayList1, res));
+        Thread war2 = new Thread(new Theards.War(arrayList2, res));
+        Thread war3 = new Thread(new Theards.War(arrayList3, res));
         war1.start();
         war2.start();
         war3.start();
+        System.out.println(res.size());
     }
 }
 
@@ -52,48 +53,23 @@ class Theards {
         return mapStat;
     }
 
-    static class War1 implements Runnable {
+    static class War implements Runnable {
         List<String> arrayList;
         Map<String, Integer> mapStat = new HashMap<>();
+        TreeMap<String, Integer> res = new TreeMap<>();
 
-        public War1(List<String> arrayList) {
+        public War(List<String> arrayList, TreeMap<String, Integer> res) {
             this.arrayList = arrayList;
+            this.res = res;
         }
 
         @Override
         public void run() {
             mapStat = generate(arrayList);
             System.out.println(mapStat.size());
-        }
-    }
-
-    static class War2 implements Runnable {
-        List<String> arrayList;
-        Map<String, Integer> mapStat = new HashMap<>();
-
-        public War2(List<String> arrayList) {
-            this.arrayList = arrayList;
-        }
-
-        @Override
-        public void run() {
-            mapStat = generate(arrayList);
-            System.out.println(mapStat.size());
-        }
-    }
-
-    static class War3 implements Runnable {
-        List<String> arrayList;
-        Map<String, Integer> mapStat = new HashMap<>();
-
-        public War3(List<String> arrayList) {
-            this.arrayList = arrayList;
-        }
-
-        @Override
-        public void run() {
-            mapStat = generate(arrayList);
-            System.out.println(mapStat.size());
+            for (Map.Entry<String, Integer> entry: mapStat.entrySet()) {
+                res.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 }
