@@ -21,17 +21,18 @@ public class Task2 {
                 }
             }
         }
+        int processors = Runtime.getRuntime().availableProcessors();
         TreeMap<String, Integer> res = new TreeMap<>();
-        List<String> arrayList1 = arrayList.subList(0, arrayList.size()/3);
-        List<String> arrayList2 = arrayList.subList(arrayList.size()/3, (arrayList.size()/3)*2);
-        List<String> arrayList3 = arrayList.subList((arrayList.size()/3)*2, arrayList.size());
-        Thread war1 = new Thread(new Theards.War(arrayList1, res));
-        Thread war2 = new Thread(new Theards.War(arrayList2, res));
-        Thread war3 = new Thread(new Theards.War(arrayList3, res));
-        war1.start();
-        war2.start();
-        war3.start();
+        List<List<String>> arrayLists = new ArrayList<>();
+        for (int i = 0; i < processors; i++) {
+            arrayLists.add(arrayList.subList((arrayList.size()/processors)*i, (arrayList.size()/processors)*(i+1)));
+        }
+        for (List<String> list: arrayLists) {
+            Thread tmp = new Thread(new Theards.War(list, res));
+            tmp.start();
+        }
         System.out.println(res.size());
+        // как записать в treemap?
     }
 }
 
