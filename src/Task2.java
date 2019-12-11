@@ -14,7 +14,7 @@ public class Task2 {
         }
         List<String> arrayList = new ArrayList<>();
         for (String string : strings) {
-            String[] strings1 = string.replaceAll("\\p{Punct}", " ").trim().split(" ");
+            String[] strings1 = string.replaceAll("[\\p{Punct}[0-9]]", " ").trim().split(" ");
             for (String word : strings1) {
                 if (word.length() > 0) {
                     arrayList.add(word);
@@ -22,7 +22,8 @@ public class Task2 {
             }
         }
         int processors = Runtime.getRuntime().availableProcessors();
-        TreeMap<String, Integer> res = new TreeMap<>();
+        Map<String, Integer> res = new TreeMap<>();
+        Map<Integer, String> resRev = new TreeMap<>(Collections.reverseOrder());
         List<List<String>> arrayLists = new ArrayList<>();
         for (int i = 0; i < processors; i++) {
             arrayLists.add(arrayList.subList((arrayList.size()/processors)*i, (arrayList.size()/processors)*(i+1)));
@@ -30,9 +31,22 @@ public class Task2 {
         for (List<String> list: arrayLists) {
             Thread tmp = new Thread(new Theards.War(list, res));
             tmp.start();
+            try {
+                tmp.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         System.out.println(res.size());
-        // как записать в treemap?
+        for (Map.Entry<String, Integer> entry: res.entrySet()) {
+            resRev.put(entry.getValue(), entry.getKey());
+        }
+            int count = 0;
+        for (Map.Entry<Integer, String> entry: resRev.entrySet()) {
+                System.out.println(entry.getKey() + " " + entry.getValue());
+                count++;
+            if (count == 100) break;
+        }
     }
 }
 
@@ -57,9 +71,9 @@ class Theards {
     static class War implements Runnable {
         List<String> arrayList;
         Map<String, Integer> mapStat = new HashMap<>();
-        TreeMap<String, Integer> res = new TreeMap<>();
+        Map<String, Integer> res = new TreeMap<>();
 
-        public War(List<String> arrayList, TreeMap<String, Integer> res) {
+        public War(List<String> arrayList, Map<String, Integer> res) {
             this.arrayList = arrayList;
             this.res = res;
         }
@@ -68,8 +82,11 @@ class Theards {
         public void run() {
             mapStat = generate(arrayList);
             System.out.println(mapStat.size());
+            int count = 0;
             for (Map.Entry<String, Integer> entry: mapStat.entrySet()) {
-                res.put(entry.getKey(), entry.getValue());
+                if (res.containsKey(entry.getKey()))
+                res.replace(entry.getKey(), res.get(entry.getKey()), res.get(entry.getKey()) + entry.getValue());
+                else res.put(entry.getKey(), entry.getValue());
             }
         }
     }
